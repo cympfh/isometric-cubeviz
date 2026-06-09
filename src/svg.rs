@@ -1,7 +1,6 @@
 use crate::model::{BackgroundStyle, BorderStyle, Cube, ViewMode};
 
 const CELL: f64 = 20.0;
-const THICKNESS_RATIO: f64 = 0.15;
 
 struct Proj {
     dx_x: f64,
@@ -71,7 +70,7 @@ fn sticker(proj: &Proj, corners: &[(f64, f64, f64)], fill: &str, stroke_width: f
     )
 }
 
-fn compute_viewbox(proj: &Proj, n: usize, thickness: bool) -> (f64, f64, f64, f64) {
+fn compute_viewbox(proj: &Proj, n: usize) -> (f64, f64, f64, f64) {
     let nf = n as f64;
     let mut xs: Vec<f64> = Vec::new();
     let mut ys: Vec<f64> = Vec::new();
@@ -82,17 +81,6 @@ fn compute_viewbox(proj: &Proj, n: usize, thickness: bool) -> (f64, f64, f64, f6
                 let (sx, sy) = proj.project(gx, gy, gz);
                 xs.push(sx);
                 ys.push(sy);
-            }
-        }
-    }
-
-    if thickness {
-        let th = CELL * THICKNESS_RATIO;
-        for gx in [0.0, nf] {
-            for gz in [0.0, nf] {
-                let (sx, sy) = proj.project(gx, 0.0, gz);
-                xs.push(sx);
-                ys.push(sy + th);
             }
         }
     }
@@ -115,14 +103,13 @@ pub fn render(
     cube: &Cube,
     view: ViewMode,
     border: BorderStyle,
-    thickness: bool,
     background: BackgroundStyle,
 ) -> String {
     let n = cube.size;
     let nf = n as f64;
     let proj = Proj::for_view(view);
     let sw = border_width(border);
-    let (vx, vy, vw, vh) = compute_viewbox(&proj, n, thickness);
+    let (vx, vy, vw, vh) = compute_viewbox(&proj, n);
 
     let mut out = String::new();
 
@@ -146,53 +133,6 @@ pub fn render(
                 "<rect x=\"{vx:.3}\" y=\"{vy:.3}\" width=\"{vw:.3}\" height=\"{vh:.3}\" fill=\"#FFFFFF\"/>"
             ));
         }
-    }
-
-    if thickness {
-        let th = CELL * THICKNESS_RATIO;
-        let (bfl_x, bfl_y) = proj.project(0.0, 0.0, 0.0);
-        let (bfr_x, bfr_y) = proj.project(nf, 0.0, 0.0);
-        let (brr_x, brr_y) = proj.project(nf, 0.0, nf);
-        let (blr_x, blr_y) = proj.project(0.0, 0.0, nf);
-
-        let bottom_f = format!(
-            "<polygon points=\"{:.3},{:.3} {:.3},{:.3} {:.3},{:.3} {:.3},{:.3}\" fill=\"#333333\" stroke=\"none\"/>",
-            bfl_x,
-            bfl_y,
-            bfr_x,
-            bfr_y,
-            bfr_x,
-            bfr_y + th,
-            bfl_x,
-            bfl_y + th,
-        );
-        out.push_str(&bottom_f);
-
-        let bottom_r = format!(
-            "<polygon points=\"{:.3},{:.3} {:.3},{:.3} {:.3},{:.3} {:.3},{:.3}\" fill=\"#2A2A2A\" stroke=\"none\"/>",
-            bfr_x,
-            bfr_y,
-            brr_x,
-            brr_y,
-            brr_x,
-            brr_y + th,
-            bfr_x,
-            bfr_y + th,
-        );
-        out.push_str(&bottom_r);
-
-        let bottom_l = format!(
-            "<polygon points=\"{:.3},{:.3} {:.3},{:.3} {:.3},{:.3} {:.3},{:.3}\" fill=\"#2A2A2A\" stroke=\"none\"/>",
-            bfl_x,
-            bfl_y,
-            blr_x,
-            blr_y,
-            blr_x,
-            blr_y + th,
-            bfl_x,
-            bfl_y + th,
-        );
-        out.push_str(&bottom_l);
     }
 
     for row in 0..n {
@@ -264,7 +204,6 @@ mod tests {
             &cube,
             ViewMode::Balanced,
             BorderStyle::Normal,
-            false,
             BackgroundStyle::Transparent,
         );
         assert!(svg.contains("<svg"));
@@ -278,7 +217,6 @@ mod tests {
             &cube,
             ViewMode::Balanced,
             BorderStyle::Normal,
-            false,
             BackgroundStyle::Transparent,
         );
         assert!(svg.contains("viewBox="));
@@ -291,7 +229,6 @@ mod tests {
             &cube,
             ViewMode::Balanced,
             BorderStyle::Normal,
-            false,
             BackgroundStyle::Transparent,
         );
         assert!(svg.contains("<title>"));
@@ -305,7 +242,6 @@ mod tests {
             &cube,
             ViewMode::Balanced,
             BorderStyle::Normal,
-            false,
             BackgroundStyle::Transparent,
         );
         let count = svg.matches("<polygon").count();
@@ -319,7 +255,6 @@ mod tests {
             &cube,
             ViewMode::Balanced,
             BorderStyle::Normal,
-            false,
             BackgroundStyle::Transparent,
         );
         let count = svg.matches("<polygon").count();
@@ -333,14 +268,12 @@ mod tests {
             &cube,
             ViewMode::Balanced,
             BorderStyle::Normal,
-            false,
             BackgroundStyle::Transparent,
         );
         let top = render(
             &cube,
             ViewMode::Top,
             BorderStyle::Normal,
-            false,
             BackgroundStyle::Transparent,
         );
         assert_ne!(balanced, top);
@@ -353,30 +286,9 @@ mod tests {
             &cube,
             ViewMode::Balanced,
             BorderStyle::Normal,
-            false,
             BackgroundStyle::White,
         );
         assert!(svg.contains("<rect"));
         assert!(svg.contains("#FFFFFF"));
-    }
-
-    #[test]
-    fn render_thickness_adds_elements() {
-        let cube = solved_cube(3);
-        let without = render(
-            &cube,
-            ViewMode::Balanced,
-            BorderStyle::Normal,
-            false,
-            BackgroundStyle::Transparent,
-        );
-        let with_thickness = render(
-            &cube,
-            ViewMode::Balanced,
-            BorderStyle::Normal,
-            true,
-            BackgroundStyle::Transparent,
-        );
-        assert!(with_thickness.len() > without.len());
     }
 }

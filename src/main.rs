@@ -25,9 +25,6 @@ struct Cli {
     #[arg(long, default_value = "normal")]
     border: String,
 
-    #[arg(long, default_value = "true")]
-    thickness: String,
-
     #[arg(long, default_value = "transparent")]
     background: String,
 
@@ -55,16 +52,9 @@ fn main() {
 
     let view = model::ViewMode::from_str(&cli.view).unwrap_or_else(|e| die(&e));
     let border = model::BorderStyle::from_str(&cli.border).unwrap_or_else(|e| die(&e));
-    let thickness = match cli.thickness.as_str() {
-        "true" => true,
-        "false" => false,
-        other => die(&format!(
-            "invalid --thickness value: '{other}' (expected true or false)"
-        )),
-    };
     let background = model::BackgroundStyle::from_str(&cli.background).unwrap_or_else(|e| die(&e));
 
-    let svg_output = svg::render(&cube, view, border, thickness, background);
+    let svg_output = svg::render(&cube, view, border, background);
 
     match &cli.output {
         Some(path) => {

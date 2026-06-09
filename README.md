@@ -25,7 +25,6 @@ iso-cubeviz [OPTIONS]
 | `-o`, `--output <FILE>` | 出力先 SVG ファイル（省略時は stdout） | |
 | `--view <VIEW>` | ビューモード: `balanced` / `top` / `side` | `balanced` |
 | `--border <BORDER>` | ボーダー太さ: `thin` / `normal` / `thick` | `normal` |
-| `--thickness <BOOL>` | キューブ側面の厚みを描画するか | `true` |
 | `--background <BG>` | 背景: `transparent` / `light` / `white` | `transparent` |
 
 ## 状態フォーマット

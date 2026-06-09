@@ -15,7 +15,7 @@ R: GGG GGG GGG
 最低限の使い方を簡単に書いて。
 絵文字禁止。過剰な宣伝禁止。
 
-## [ ] --thickness false でOK
+## [x] --thickness false でOK [2026-06-09 14:48 完了]
 
 --thickness というオプションを消す。
 常に今で言うとこの false 扱いの挙動で固定する
