@@ -34,7 +34,6 @@ iso-cubeviz [OPTIONS]
 
 | オプション                    | 説明                                           | 必須 | デフォルト     |
 |-------------------------------|------------------------------------------------|------|----------------|
-| `-n, --size <N>`              | キューブサイズ                                 | 必須 | -              |
 | `-s, --state <STATE>`         | 状態を直接指定（後述のフォーマット）           | 必須 | -              |
 | `--state-file <PATH>`         | 状態ファイルを指定（--stateと排他）            | -    | -              |
 | `--view <MODE>`               | ビューアングル（balanced / top / side）        | -    | `balanced`     |
@@ -49,13 +48,13 @@ iso-cubeviz [OPTIONS]
 
 ```bash
 # 基本（3x3、balancedビュー）
-iso-cubeviz -n 3 -s "U:WWWWWWWWW F:GGGGGGGGG ..." -o cube.svg
+iso-cubeviz -s "size: 3\nU: WWWWWWWWW\nF: GGGGGGGGG\nR: RRRRRRRRR" -o cube.svg
 
 # 5x5 + topビュー + 厚みなし + 細い境界線
-iso-cubeviz -n 5 --state-file state.txt --view top --thickness false --border thin -o big.svg
+iso-cubeviz --state-file state.txt --view top --thickness false --border thin -o big.svg
 
 # パイプ出力
-iso-cubeviz -n 3 -s "..." | cat
+iso-cubeviz --state-file state.txt | cat
 ```
 
 ---
@@ -69,10 +68,9 @@ size: <N>
 U: <色N×N文字>
 F: <色N×N文字>
 R: <色N×N文字>
-B: <色N×N文字>
-L: <色N×N文字>
-D: <色N×N文字>
 ```
+
+描画する3面（U/F/R）のみ指定する。省略した面は灰色（H）で初期化される。
 
 ### 色コード（8色）
 
@@ -94,21 +92,15 @@ size: 3
 U: WWWWWWWWW
 F: GGGGGGGGG
 R: RRRRRRRRR
-B: BBBBBBBBB
-L: LLLLLLLLL
-D: DDDDDDDDD
 ```
 
-### 例（4x4、一部黒使用）
+### 例（4x4）
 
 ```
 size: 4
 U: WWWWWWWWWWWWWWWW
 F: GGGGGGGGGGGGGGGG
 R: RRRRRRRRRRRRRRRR
-B: BBBBBBBBBBBBBBBB
-L: LLLLLLLLLLLLLLLL
-D: DDDDDDDDDDDDDDDD
 ```
 
 **補足**:
@@ -172,7 +164,7 @@ pub enum Color { W, Y, G, B, R, O, K, H }
 
 pub struct Cube {
     pub size: usize,
-    pub faces: [Vec<Vec<Color>>; 6], // 0:U, 1:F, 2:R, 3:B, 4:L, 5:D
+    pub faces: [Vec<Vec<Color>>; 3], // 0:U, 1:F, 2:R
 }
 
 pub enum ViewMode { Balanced, Top, Side }

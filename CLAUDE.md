@@ -10,8 +10,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 cargo build
-cargo run -- -n 3 -s "size: 3\nU: WWWWWWWWW\nF: GGGGGGGGG\nR: RRRRRRRRR\nB: BBBBBBBBB\nL: OOOOOOOOO\nD: YYYYYYYYY"
-cargo run -- -n 3 --state-file state.txt -o cube.svg
+cargo run -- -s "size: 3\nU: WWWWWWWWW\nF: GGGGGGGGG\nR: RRRRRRRRR"
+cargo run -- --state-file state.txt -o cube.svg
 ```
 
 ## テスト・チェック
@@ -33,7 +33,7 @@ cargo test <test_name>
 
 - **`main.rs`** — CLI引数パース（`clap`使用）、エントリポイント
 - **`model.rs`** — `Color`, `Cube`, `ViewMode`, `BorderStyle`, `BackgroundStyle` の型定義
-- **`parser.rs`** — 状態文字列・ファイルのパース（`size:` + 6面の色文字列）
+- **`parser.rs`** — 状態文字列・ファイルのパース（`size:` + U/F/R 3面の色文字列）
 - **`svg.rs`** — 等角投影SVG生成（面ごとの平行四辺形描画、奥→手前の順序）
 
 ## 状態フォーマット（`--state` / `--state-file`）
@@ -43,12 +43,9 @@ size: 3
 U: WWWWWWWWW
 F: GGGGGGGGG
 R: RRRRRRRRR
-B: BBBBBBBBB
-L: OOOOOOOOO
-D: YYYYYYYYY
 ```
 
-面の順序: `0:U, 1:F, 2:R, 3:B, 4:L, 5:D`。各面は左上→右下で N×N 文字。色文字列中の空白文字（スペース・タブ）はパース時に無視する。
+描画する3面（U/F/R）のみ指定する。面の順序: `0:U, 1:F, 2:R`。各面は左上→右下で N×N 文字。色文字列中の空白文字（スペース・タブ）はパース時に無視する。
 
 ## 色コード
 
