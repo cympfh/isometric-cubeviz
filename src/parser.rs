@@ -3,7 +3,8 @@ use crate::model::{Color, Cube};
 pub fn parse_state(input: &str) -> Result<Cube, String> {
     let mut size: Option<usize> = None;
     let face_names = ["U", "F", "R"];
-    let mut face_strings: [Option<String>; 3] = [None, None, None];
+    let mut face_strings: [String; 3] = [String::new(), String::new(), String::new()];
+    let mut current_face: Option<usize> = None;
 
     for line in input.lines() {
         let line = line.trim();
@@ -17,15 +18,22 @@ pub fn parse_state(input: &str) -> Result<Cube, String> {
                 .parse()
                 .map_err(|_| format!("invalid size: '{}'", rest.trim()))?;
             size = Some(n);
+            current_face = None;
             continue;
         }
 
+        let mut matched = false;
         for (i, name) in face_names.iter().enumerate() {
             let prefix = format!("{name}:");
             if let Some(rest) = line.strip_prefix(prefix.as_str()) {
-                face_strings[i] = Some(rest.to_string());
+                current_face = Some(i);
+                face_strings[i].push_str(rest);
+                matched = true;
                 break;
             }
+        }
+        if !matched && let Some(i) = current_face {
+            face_strings[i].push_str(line);
         }
     }
 
@@ -37,11 +45,12 @@ pub fn parse_state(input: &str) -> Result<Cube, String> {
     let expected = n * n;
     let mut faces_vec: Vec<Vec<Vec<Color>>> = Vec::with_capacity(6);
     for (i, name) in face_names.iter().enumerate() {
-        match face_strings[i].as_deref() {
-            None => {
-                faces_vec.push(vec![vec![Color::H; n]; n]);
-            }
-            Some(raw) => {
+        let raw = &face_strings[i];
+        if raw.chars().all(|c| c.is_whitespace()) {
+            faces_vec.push(vec![vec![Color::H; n]; n]);
+        } else {
+            let raw = raw.as_str();
+            {
                 let chars: Vec<char> = raw.chars().filter(|c| !c.is_whitespace()).collect();
                 if chars.len() != expected {
                     return Err(format!(
@@ -147,5 +156,24 @@ U: WWWW
 F: GGGG
 R: RRRR";
         assert!(parse_state(input).is_err());
+    }
+
+    #[test]
+    fn parse_multiline_face() {
+        let input = "\
+size: 3
+U: RRR
+RRR
+RRR
+F: BBBBBBBBB
+R:
+GGG
+GGG
+GGG";
+        let cube = parse_state(input).unwrap();
+        assert_eq!(cube.size, 3);
+        assert!(cube.faces[0].iter().flatten().all(|&c| c == Color::R));
+        assert!(cube.faces[1].iter().flatten().all(|&c| c == Color::B));
+        assert!(cube.faces[2].iter().flatten().all(|&c| c == Color::G));
     }
 }

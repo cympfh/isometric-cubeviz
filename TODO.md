@@ -19,3 +19,21 @@ R: GGG GGG GGG
 
 --thickness というオプションを消す。
 常に今で言うとこの false 扱いの挙動で固定する
+
+## [x] state file をもっと自由に書けるよう [2026-06-09 15:54 完了]
+
+今一行で書かないといけない
+
+```
+size: 3
+U: RRR
+RRR
+RRR
+F: BBBBBBBBB
+R:
+GGG
+GGG
+GGG
+```
+
+自由に改行させてほしい
