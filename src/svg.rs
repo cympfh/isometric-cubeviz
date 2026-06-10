@@ -168,7 +168,7 @@ pub fn render(
     for row in 0..n {
         let r = row as f64;
         for col in 0..n {
-            let c = col as f64;
+            let c = (n - 1 - col) as f64;
             let fill = cube.faces[2][row][col].hex();
             let corners = [
                 (nf, nf - r, c),
