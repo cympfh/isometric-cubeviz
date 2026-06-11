@@ -49,6 +49,7 @@ pub struct Cube {
 
 #[derive(Debug, Clone, Copy)]
 pub enum ViewMode {
+    Front,
     Balanced,
     Top,
     Side,
@@ -59,6 +60,7 @@ impl FromStr for ViewMode {
 
     fn from_str(s: &str) -> Result<Self, String> {
         match s {
+            "front" => Ok(Self::Front),
             "balanced" => Ok(Self::Balanced),
             "top" => Ok(Self::Top),
             "side" => Ok(Self::Side),
@@ -139,6 +141,7 @@ mod tests {
 
     #[test]
     fn view_mode_from_str() {
+        assert!(matches!("front".parse::<ViewMode>(), Ok(ViewMode::Front)));
         assert!(matches!(
             "balanced".parse::<ViewMode>(),
             Ok(ViewMode::Balanced)

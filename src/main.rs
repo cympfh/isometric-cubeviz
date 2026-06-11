@@ -19,14 +19,14 @@ struct Cli {
     #[arg(long, conflicts_with = "state")]
     state_file: Option<PathBuf>,
 
-    #[arg(long, default_value = "balanced")]
-    view: String,
+    #[arg(long)]
+    view: Option<String>,
 
-    #[arg(long, default_value = "normal")]
-    border: String,
+    #[arg(long)]
+    border: Option<String>,
 
-    #[arg(long, default_value = "transparent")]
-    background: String,
+    #[arg(long)]
+    background: Option<String>,
 
     #[arg(short = 'o', long)]
     output: Option<PathBuf>,
@@ -49,10 +49,22 @@ fn main() {
     };
 
     let cube = parser::parse_state(&state_text).unwrap_or_else(|e| die(&e));
+    let opts = parser::parse_options(&state_text);
 
-    let view = model::ViewMode::from_str(&cli.view).unwrap_or_else(|e| die(&e));
-    let border = model::BorderStyle::from_str(&cli.border).unwrap_or_else(|e| die(&e));
-    let background = model::BackgroundStyle::from_str(&cli.background).unwrap_or_else(|e| die(&e));
+    // 優先順位: CLI 明示指定 > state file 記述 > 組み込みデフォルト
+    let view_s = cli.view.or(opts.view).unwrap_or_else(|| "front".into());
+    let border_s = cli
+        .border
+        .or(opts.border)
+        .unwrap_or_else(|| "normal".into());
+    let background_s = cli
+        .background
+        .or(opts.background)
+        .unwrap_or_else(|| "transparent".into());
+
+    let view = model::ViewMode::from_str(&view_s).unwrap_or_else(|e| die(&e));
+    let border = model::BorderStyle::from_str(&border_s).unwrap_or_else(|e| die(&e));
+    let background = model::BackgroundStyle::from_str(&background_s).unwrap_or_else(|e| die(&e));
 
     let svg_output = svg::render(&cube, view, border, background);
 

@@ -23,7 +23,7 @@ iso-cubeviz [OPTIONS]
 | `-s`, `--state <STATE>` | 状態文字列を直接指定 | |
 | `--state-file <FILE>` | 状態ファイルを指定 | |
 | `-o`, `--output <FILE>` | 出力先 SVG ファイル（省略時は stdout） | |
-| `--view <VIEW>` | ビューモード: `balanced` / `top` / `side` | `balanced` |
+| `--view <VIEW>` | ビューモード: `front` / `balanced` / `top` / `side` | `front` |
 | `--border <BORDER>` | ボーダー太さ: `thin` / `normal` / `thick` | `normal` |
 | `--background <BG>` | 背景: `transparent` / `light` / `white` | `transparent` |
 
@@ -41,6 +41,17 @@ R: RRRRRRRRR
 - `size` は 1 以上の整数
 - 各面は左上から右下に向かって N×N 個の色コードを列挙
 - 空白・タブは無視される
+- `view:` / `border:` / `background:` をオプションとして記述できる（コマンドラインのオプションが優先される）
+
+```
+size: 3
+view: balanced
+border: thick
+background: white
+U: WWWWWWWWW
+F: GGGGGGGGG
+R: RRRRRRRRR
+```
 
 ### 色コード
 

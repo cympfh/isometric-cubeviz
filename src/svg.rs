@@ -13,6 +13,13 @@ struct Proj {
 impl Proj {
     fn for_view(view: ViewMode) -> Self {
         match view {
+            ViewMode::Front => Self {
+                dx_x: 1.000,
+                dx_y: 0.000,
+                dz_x: -0.433,
+                dz_y: 0.350,
+                dy_y: -1.000,
+            },
             ViewMode::Balanced => Self {
                 dx_x: 0.866,
                 dx_y: 0.500,
